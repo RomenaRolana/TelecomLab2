@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Реалізація інтерліверів та деінтерліверів</title>
+    <style>
+        #results {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Реалізація інтерліверів та деінтерліверів</h2>
+    <button onclick="generateAndDisplaySequences()">Генерувати та відобразити послідовності</button>
+    <div id="results">
+        <!-- Тут будуть відображені результати -->
+    </div>
+
+    <script>
+        const permuteSequence = [8, 1, 3, 4, 6, 7, 9, 5, 2, 0];
+
+        function generateRandomSequence(length) {
+            // Генерує випадкову послідовність 0 та 1 заданої довжини
+            return Array.from({length: length}, () => Math.floor(Math.random() * 2));
+        }
+
+        function interleave(sequence, rows, cols, permute) {
+            const interleaved = [];
+            const matrix = [];
+
+            // Заповнюємо матрицю рядками
+            for (let i = 0; i < rows; i++) {
+                matrix.push(sequence.slice(i * cols, (i + 1) * cols));
+            }
+
+            // Перемішування за допомогою заданої перестановки стовпців
+            for (let col of permute) {
+                for (let row = 0; row < rows; row++) {
+                    interleaved.push(matrix[row][col]);
+                }
+            }
+
+            return interleaved;
+        }
+
+        function deinterleave(sequence, rows, cols, permute) {
+            const deinterleaved = [];
+            const matrix = [];
+
+            // Ініціалізуємо порожню матрицю
+            for (let i = 0; i < rows; i++) {
+                matrix.push(new Array(cols).fill(null));
+            }
+
+            // Заповнюємо матрицю за допомогою оберненої перестановки
+            let index = 0;
+            for (let col of permute) {
+                for (let row = 0; row < rows; row++) {
+                    matrix[row][col] = sequence[index++];
+                }
+            }
+
+            // Читаємо матрицю рядками
+            for (let row = 0; row < rows; row++) {
+                deinterleaved.push(...matrix[row]);
+            }
+
+            return deinterleaved;
+        }
+
+        function compareSequences(original, deinterleaved) {
+            // Порівняння вихідної та деінтерлійованої послідовностей
+            return original.every((value, index) => value === deinterleaved[index]);
+        }
+
+        function generateAndDisplaySequences() {
+            const K = 1000; // Довжина послідовності
+            const N = 100; // Кількість рядків
+            const M = 10;  // Кількість стовпців
+
+            const originalSequence = generateRandomSequence(K);
+            const interleavedSequence = interleave(originalSequence, N, M, permuteSequence);
+            const deinterleavedSequence = deinterleave(interleavedSequence, N, M, permuteSequence);
+            const comparisonResult = compareSequences(originalSequence, deinterleavedSequence);
+
+            const resultContainer = document.getElementById('results');
+            resultContainer.innerHTML = `<p>Original: ${originalSequence.slice(0, 100).join(' ')}</p>
+                                         <p>Interleaved: ${interleavedSequence.slice(0, 100).join(' ')}</p>
+                                         <p>Deinterleaved: ${deinterleavedSequence.slice(0, 100).join(' ')}</p>
+                                         <p>Чи однакові вихідна та деінтерлійована послідовності? <strong>${comparisonResult}</strong></p>`;
+        }
+    </script>
+</body>
+</html>
